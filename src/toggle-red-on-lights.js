@@ -40,7 +40,7 @@ client.lights.getAll()
     console.log(`number lights: ${onLights.length}`);
 
     sleep(20000).then(() => {
-      for (var i = 0; i < onLights.length; i++) {
+      for (let i = 0; i < onLights.length; i++) {
         console.log(`changing ${onLights[i].name} [${i}] to ${prevColorMode[i]}`);
         onLights[i].brightness = prevBright[i];
         if(prevColorMode[i].includes("hs")) {
