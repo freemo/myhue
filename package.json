@@ -1,0 +1,21 @@
+{
+  "name": "myhue",
+  "version": "1.0.0",
+  "description": "My Philips Hue",
+  "keywords": [
+    "hue",
+    "philips",
+    "huejay",
+    "client",
+    "api",
+    "iot"
+  ],
+  "maintainers": [
+    "Jeffrey Phillips Freeman"
+  ],
+  "license": "Apache-2.0",
+  "repository": "freemo/myhue",
+  "dependencies": {
+    "huejay": "^1.8.2"
+  }
+}
