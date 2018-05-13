@@ -11,7 +11,6 @@ client.lights.getAll()
       console.log(`toggling light ${light.name}[${light.id}] to on? ${!light.on}`);
       light.on = !light.on
 
-      //saveLight(light);
       retry(() => client.lights.save(light) );
     }
   })

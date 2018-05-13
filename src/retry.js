@@ -1,14 +1,16 @@
+#!/usr/bin/env node
 
 'use strict';
 
 let sleep = require('./sleep');
 
-let retry = function retry(fn, retries) {
+function retry(fn, retries) {
   if (typeof(retries)==='undefined') retries = 20;
 
+  console.log("trying: " + fn + " with " + retries + " retries left");
   fn()
   .then(light => {
-    console.log(`Updated light [${light.id}]`);
+    console.log(`Updated light [${light.name}] after ${20-retries} retries`);
   })
   .catch(error => {
     retries--;
@@ -18,6 +20,8 @@ let retry = function retry(fn, retries) {
         retry(fn, retries);
       });
     } else {
+      console.log("can't recover...");
+      console.log(error.stack);
       throw error;
     }
   });
