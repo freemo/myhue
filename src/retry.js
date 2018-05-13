@@ -1,9 +1,7 @@
 
 'use strict';
 
-function sleep (time) {
-  return new Promise((resolve) => setTimeout(resolve, time));
-}
+let sleep = require('./sleep');
 
 let retry = function retry(fn, retries) {
   if (typeof(retries)==='undefined') retries = 20;
