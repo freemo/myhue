@@ -27,8 +27,6 @@ client.lights.getAll()
         prevXy.push(light.xy);
         prevTemp.push(light.colorTemp);
 
-        console.log(`setting to red: ${light.name}, ${light.colorMode}, ${light.hue}`);
-
         light.brightness = 254;
         light.saturation = 254;
         light.hue = 0;
@@ -37,11 +35,8 @@ client.lights.getAll()
       }
     }
 
-    console.log(`number lights: ${onLights.length}`);
-
     sleep(20000).then(() => {
       for (let i = 0; i < onLights.length; i++) {
-        console.log(`changing ${onLights[i].name} [${i}] to ${prevColorMode[i]}`);
         onLights[i].brightness = prevBright[i];
         if(prevColorMode[i].includes("hs")) {
           onLights[i].hue = prevHue[i];
