@@ -9,23 +9,20 @@ let retry = require('./retry');
 
 client.lights.getAll()
   .then(lights => {
-    var onLights = [];
-    var prevBright = [];
-    var prevHue = [];
-    var prevSaturation = [];
-    var prevColorMode = [];
-    var prevXy = [];
-    var prevTemp = [];
+    let onLights = [];
 
     for (let light of lights) {
       if(light.on && !(typeof(light.colorMode)==='undefined')) {
-        onLights.push(light);
-        prevBright.push(light.brightness);
-        prevHue.push(light.hue);
-        prevSaturation.push(light.saturation);
-        prevColorMode.push(light.colorMode);
-        prevXy.push(light.xy);
-        prevTemp.push(light.colorTemp);
+        let lightData = {
+          "light":light,
+          "brightness":light.brightness,
+          "hue":light.hue,
+          "saturation":light.saturation,
+          "colorMode":light.colorMode,
+          "xy":light.xy,
+          "colorTemp":light.colorTemp
+        };
+        onLights.push(lightData);
 
         light.brightness = 254;
         light.saturation = 254;
@@ -36,22 +33,25 @@ client.lights.getAll()
     }
 
     sleep(20000).then(() => {
-      for (let i = 0; i < onLights.length; i++) {
-        onLights[i].brightness = prevBright[i];
-        if(prevColorMode[i].includes("hs")) {
-          onLights[i].hue = prevHue[i];
-          onLights[i].saturation = prevSaturation[i];
+      for (let lightData of onLights) {
+        let light = lightData.light;
+
+        light.brightness = lightData.brightness;
+        if(light.colorMode.includes("hs")) {
+          light.hue = lightData.hue;
+          light.saturation = lightData.saturation;
         }
 
-        if(prevColorMode[i].includes("xy")) {
-          onLights[i].xy = prevXy[i];
+        if(light.colorMode.includes("xy")) {
+          light.xy = lightData.xy;
         }
 
-        if(prevColorMode[i].includes("ct")) {
-          onLights[i].colorTemp = prevTemp[i];
+        if(light.colorMode.includes("ct")) {
+          light.colorTemp = lightData.colorTemp;
         }
 
-        retry(() => client.lights.save(onLights[i]) );
+
+        retry(() => client.lights.save(light) );
       }
     });
   })
