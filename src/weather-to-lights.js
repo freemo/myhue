@@ -8,8 +8,9 @@ let getOnLights = require('./get-on-lights');
 let sleep = require('./sleep');
 let retry = require('./retry');
 
-const USE_FORECAST_WEATHER = true;
-const DURATION = 30000;
+const RAIN_DURATION = 15000;
+const MIN_DURATION = 15000;
+const MAX_DURATION = 15000;
 const MAX_TEMP = 90.0;
 const MIN_TEMP = 32.0;
 const NOMINAL_TEMP = 68.0;
@@ -40,16 +41,20 @@ function getTempColorXy(temp) {
 }
 
 getWeather(weatherInfo => {
-  let temp = weatherInfo.main.temp;
-  if(USE_FORECAST_WEATHER)
-    temp = (Math.abs(weatherInfo.main.temp_min - NOMINAL_TEMP) > Math.abs(weatherInfo.main.temp_max - NOMINAL_TEMP) ? weatherInfo.main.temp_min : weatherInfo.main.temp_max);
-  let tempXy = getTempColorXy(temp);
+  let tempMin = weatherInfo.main.temp_min;
+  let tempMax = weatherInfo.main.temp_max;
+  let tempXyMin = getTempColorXy(tempMin);
+  let tempXyMax = getTempColorXy(tempMax);
 
   let isRain = false;
   for (let weather of weatherInfo.weather) {
     if( weather.id >= 200 && weather.id <= 701)
       isRain = true;
   }
+
+  let bright = Math.floor(254.0 * ((100.0 - weatherInfo.clouds.all) / 100.0));
+  if( bright <= 0 )
+    bright = 1;
 
   client.lights.getAll()
     .then(lights => {
@@ -68,11 +73,8 @@ getWeather(weatherInfo => {
           };
           onLights.push(lightData);
 
-          let bright = Math.floor(254.0 * ((100.0 - weatherInfo.clouds.all) / 100.0));
-          if( bright <= 0 )
-            bright = 1;
           light.brightness = bright;
-          light.xy = tempXy;
+          light.xy = tempXyMin;
           if(isRain)
             light.alert = "lselect";
 
@@ -80,7 +82,19 @@ getWeather(weatherInfo => {
         }
       }
 
-      sleep(DURATION).then(() => {
+      sleep(isRain ? RAIN_DURATION + MIN_DURATION : MIN_DURATION).then(() => {
+        for (let light of lights) {
+          if(light.on && !(typeof(light.colorMode)==='undefined')) {
+            light.alert = "none";
+            light.brightness = bright;
+            light.xy = tempXyMax;
+
+            retry(() => client.lights.save(light) );
+          }
+        }
+      });
+
+      sleep((isRain ? RAIN_DURATION + MIN_DURATION : MIN_DURATION) + MAX_DURATION).then(() => {
         for (let lightData of onLights) {
           let light = lightData.light;
 
