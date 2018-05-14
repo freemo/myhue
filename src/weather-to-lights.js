@@ -68,7 +68,10 @@ getWeather(weatherInfo => {
           };
           onLights.push(lightData);
 
-          light.brightness = Math.floor(254.0 * ((100.0 - weatherInfo.clouds.all) / 100.0));
+          let bright = Math.floor(254.0 * ((100.0 - weatherInfo.clouds.all) / 100.0));
+          if( bright <= 0 )
+            bright = 1;
+          light.brightness = bright;
           light.xy = tempXy;
           if(isRain)
             light.alert = "lselect";
