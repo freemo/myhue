@@ -9,7 +9,7 @@ let sleep = require('./sleep');
 let retry = require('./retry');
 
 const USE_FORECAST_WEATHER = true;
-const DURATION = 20000;
+const DURATION = 30000;
 const MAX_TEMP = 90.0;
 const MIN_TEMP = 32.0;
 const NOMINAL_TEMP = 68.0;
@@ -43,7 +43,6 @@ getWeather(weatherInfo => {
   let temp = weatherInfo.main.temp;
   if(USE_FORECAST_WEATHER)
     temp = (Math.abs(weatherInfo.main.temp_min - NOMINAL_TEMP) > Math.abs(weatherInfo.main.temp_max - NOMINAL_TEMP) ? weatherInfo.main.temp_min : weatherInfo.main.temp_max);
-  console.log(`Current temp: ${temp}`);
   let tempXy = getTempColorXy(temp);
 
   let isRain = false;

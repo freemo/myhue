@@ -9,7 +9,6 @@ function retry(fn, retries) {
 
   fn()
   .then(light => {
-    console.log(`Updated light [${light.name}] after ${20-retries} retries`);
   })
   .catch(error => {
     retries--;
