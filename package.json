@@ -16,6 +16,7 @@
   "license": "Apache-2.0",
   "repository": "freemo/myhue",
   "dependencies": {
-    "huejay": "^1.8.2"
+    "huejay": "^1.8.2",
+    "request": "^2.85.0"
   }
 }
