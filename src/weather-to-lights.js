@@ -8,7 +8,7 @@ let getOnLights = require('./get-on-lights');
 let sleep = require('./sleep');
 let retry = require('./retry');
 
-const USE_FORECAST_WEATHER = false;
+const USE_FORECAST_WEATHER = true;
 const DURATION = 20000;
 const MAX_TEMP = 90.0;
 const MIN_TEMP = 32.0;
@@ -39,12 +39,18 @@ function getTempColorXy(temp) {
   return NOMINAL_XY;
 }
 
-getWeather(weather => {
-  let temp = weather.main.temp;
+getWeather(weatherInfo => {
+  let temp = weatherInfo.main.temp;
   if(USE_FORECAST_WEATHER)
-    temp = (Math.abs(weather.main.temp_min - NOMINAL_TEMP) > Math.abs(weather.main.temp_max - NOMINAL_TEMP) ? weather.main.temp_min : weather.main.temp_max);
+    temp = (Math.abs(weatherInfo.main.temp_min - NOMINAL_TEMP) > Math.abs(weatherInfo.main.temp_max - NOMINAL_TEMP) ? weatherInfo.main.temp_min : weatherInfo.main.temp_max);
   console.log(`Current temp: ${temp}`);
   let tempXy = getTempColorXy(temp);
+
+  let isRain = false;
+  for (let weather of weatherInfo.weather) {
+    if( weather.id >= 200 && weather.id <= 701)
+      isRain = true;
+  }
 
   client.lights.getAll()
     .then(lights => {
@@ -65,7 +71,8 @@ getWeather(weather => {
 
           light.brightness = 254;
           light.xy = tempXy;
-          light.alert = "lselect";
+          if(isRain)
+            light.alert = "lselect";
 
           retry(() => client.lights.save(light) );
         }
