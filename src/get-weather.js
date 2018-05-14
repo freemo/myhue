@@ -13,6 +13,7 @@ function getWeather(fn) {
     if(err){
       console.log('error:', error);
     } else {
+      console.log(`weather: ${body}`);
       let weather = JSON.parse(body)
       fn(weather);
     }
