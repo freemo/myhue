@@ -8,6 +8,7 @@ let getOnLights = require('./get-on-lights');
 let sleep = require('./sleep');
 let retry = require('./retry');
 
+const REDO_DURATION = 60000;
 const RAIN_DURATION = 15000;
 const MIN_DURATION = 15000;
 const MAX_DURATION = 15000;
@@ -95,6 +96,30 @@ getWeather(weatherInfo => {
       });
 
       sleep((isRain ? RAIN_DURATION + MIN_DURATION : MIN_DURATION) + MAX_DURATION).then(() => {
+        for (let lightData of onLights) {
+          let light = lightData.light;
+
+          light.alert = "none";
+          light.brightness = lightData.brightness;
+          if(light.colorMode.includes("hs")) {
+            light.hue = lightData.hue;
+            light.saturation = lightData.saturation;
+          }
+
+          if(light.colorMode.includes("xy")) {
+            light.xy = lightData.xy;
+          }
+
+          if(light.colorMode.includes("ct")) {
+            light.colorTemp = lightData.colorTemp;
+          }
+
+
+          retry(() => client.lights.save(light) );
+        }
+      });
+
+      sleep(REDO_DURATION).then(() => {
         for (let lightData of onLights) {
           let light = lightData.light;
 
